@@ -1,0 +1,223 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "N4K 1.13 + Report Server 0.2 + PostgreSQL",
+    "tags": ["kyverno", "reports-server", "postgresql", "n4k"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "PostgreSQL Database Size",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "pg_database_size_bytes{database=\"reports_server\"}",
+            "legendFormat": "Database Size"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "PostgreSQL Connections",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "pg_stat_database_numbackends{database=\"reports_server\"}",
+            "legendFormat": "Active Connections"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Report Generation Time",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(reports_server_report_generation_duration_seconds_sum[5m]) / rate(reports_server_report_generation_duration_seconds_count[5m])",
+            "legendFormat": "Average Generation Time"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "PostgreSQL Query Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(pg_stat_activity_count[5m])",
+            "legendFormat": "Queries per Second"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Report Counts",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "reports_server_policy_reports_total",
+            "legendFormat": "Policy Reports"
+          },
+          {
+            "expr": "reports_server_cluster_policy_reports_total",
+            "legendFormat": "Cluster Policy Reports"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "PostgreSQL Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "pg_stat_database_blk_read_time{database=\"reports_server\"}",
+            "legendFormat": "Block Read Time"
+          },
+          {
+            "expr": "pg_stat_database_blk_write_time{database=\"reports_server\"}",
+            "legendFormat": "Block Write Time"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Connection Pool Utilization",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "reports_server_postgresql_connections_active / reports_server_postgresql_connections_max * 100",
+            "legendFormat": "Connection Pool %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "red", "value": 90}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Kyverno CPU Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{container=\"kyverno\", namespace=\"kyverno\"}[5m])",
+            "legendFormat": "CPU Usage"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Kyverno Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{container=\"kyverno\", namespace=\"kyverno\"}",
+            "legendFormat": "Memory Usage"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "Report Server Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(reports_server_report_generation_duration_seconds_sum[5m])",
+            "legendFormat": "Report Generation Rate"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "color": {
+              "mode": "palette-classic"
+            }
+          }
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

@@ -1,0 +1,71 @@
+global:
+  postgresql:
+    auth:
+      postgresPassword: "reports-server-password"
+      database: "reports_server"
+      username: "reports_user"
+      password: "reports-password"
+
+primary:
+  persistence:
+    enabled: true
+    size: 200Gi
+    storageClassName: gp3
+  resources:
+    requests:
+      memory: 4Gi
+      cpu: 2
+    limits:
+      memory: 16Gi
+      cpu: 8
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+  
+  # PostgreSQL tuning for N4K 1.13 + Report Server 0.2
+  configuration: |
+    # Connection settings
+    max_connections = 1000
+    shared_buffers = 4GB
+    effective_cache_size = 12GB
+    
+    # Memory settings
+    maintenance_work_mem = 1GB
+    work_mem = 8MB
+    
+    # Checkpoint settings
+    checkpoint_completion_target = 0.9
+    wal_buffers = 32MB
+    min_wal_size = 2GB
+    max_wal_size = 8GB
+    
+    # Query optimization
+    default_statistics_target = 200
+    random_page_cost = 1.1
+    effective_io_concurrency = 400
+    
+    # Parallel processing
+    max_worker_processes = 16
+    max_parallel_workers_per_gather = 8
+    max_parallel_workers = 16
+    max_parallel_maintenance_workers = 8
+    
+    # Logging for debugging
+    log_statement = 'all'
+    log_min_duration_statement = 1000
+    log_checkpoints = on
+    log_connections = on
+    log_disconnections = on
+
+# Backup configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention: 7
+  storage:
+    type: s3
+    s3:
+      bucket: "kyverno-reports-backups"
+      region: "us-west-2"
