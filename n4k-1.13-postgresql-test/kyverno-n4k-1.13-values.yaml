@@ -1,0 +1,57 @@
+# N4K 1.13 configuration
+kyverno:
+  image:
+    repository: nirmata/kyverno
+    tag: "v1.13.3-n4k.nirmata.4"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 1
+    limits:
+      memory: 8Gi
+      cpu: 4
+  
+  replicas: 3
+  antiAffinity: true
+  
+  # Report Server integration
+  reportsServer:
+    enabled: true
+    endpoint: "https://reports-server.kyverno.svc.cluster.local:8443"
+    timeout: "30s"
+    retries: 3
+  
+  # Metrics configuration
+  metrics:
+    enabled: true
+    port: 9090
+    path: "/metrics"
+  
+  # Logging configuration
+  logging:
+    level: "info"
+    format: "json"
+  
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 2
+  
+  # Service account
+  serviceAccount:
+    create: true
+    annotations: {}
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  
+  # Pod security context
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000

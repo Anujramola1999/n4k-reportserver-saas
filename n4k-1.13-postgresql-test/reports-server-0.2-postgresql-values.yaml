@@ -1,0 +1,89 @@
+# Report Server 0.2 with PostgreSQL backend
+reportsServer:
+  image:
+    repository: nirmata/reports-server
+    tag: "v0.2.0"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    requests:
+      memory: 4Gi
+      cpu: 2
+    limits:
+      memory: 16Gi
+      cpu: 8
+  
+  replicas: 5
+  antiAffinity: true
+  
+  # PostgreSQL backend configuration
+  postgresql:
+    enabled: true
+    host: "postgresql.kyverno.svc.cluster.local"
+    port: 5432
+    database: "reports_server"
+    username: "reports_user"
+    password: "reports-password"
+    
+    # Connection pool settings
+    connectionPool:
+      maxOpenConnections: 100
+      maxIdleConnections: 20
+      connectionMaxLifetime: "1h"
+      connectionMaxIdleTime: "15m"
+    
+    # Migration settings
+    migration:
+      enabled: true
+      timeout: "10m"
+    
+    # SSL settings
+    ssl:
+      enabled: false  # For internal cluster communication
+    
+    # Backup settings
+    backup:
+      enabled: true
+      schedule: "0 3 * * *"  # Daily at 3 AM
+      retention: 7
+  
+  # API server configuration
+  apiServer:
+    port: 8443
+    tls:
+      enabled: true
+      certFile: "/etc/ssl/certs/tls.crt"
+      keyFile: "/etc/ssl/private/tls.key"
+  
+  # Metrics configuration
+  metrics:
+    enabled: true
+    port: 9090
+    path: "/metrics"
+  
+  # Logging configuration
+  logging:
+    level: "info"
+    format: "json"
+  
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 3
+  
+  # Service account
+  serviceAccount:
+    create: true
+    annotations: {}
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  
+  # Pod security context
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000

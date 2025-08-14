@@ -1,0 +1,82 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: kyverno-reports-n4k-1.13-test
+  region: us-west-2
+  version: "1.28"
+
+# VPC Configuration
+vpc:
+  cidr: "10.0.0.0/16"
+  nat:
+    gateway: Single
+
+# Control Plane
+controlPlane:
+  instanceType: m5.xlarge
+  volumeSize: 100
+  desiredCapacity: 1
+  minSize: 1
+  maxSize: 1
+  labels:
+    role: control-plane
+  tags:
+    Environment: n4k-1.13-test
+    Project: kyverno-reports
+    Version: "1.13"
+
+# Worker Node Groups
+nodeGroups:
+  - name: workers-large
+    instanceType: m5.2xlarge
+    desiredCapacity: 8
+    minSize: 5
+    maxSize: 15
+    volumeSize: 200
+    volumeType: gp3
+    volumeEncrypted: true
+    labels:
+      role: worker
+      tier: compute
+    tags:
+      Environment: n4k-1.13-test
+      Project: kyverno-reports
+      Version: "1.13"
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        ebs: true
+        efs: true
+        fsx: true
+        cloudWatch: true
+    ssh:
+      allow: false
+
+# Add-ons
+addons:
+  - name: vpc-cni
+    version: latest
+    serviceAccountRoleARN: auto
+  - name: coredns
+    version: latest
+  - name: kube-proxy
+    version: latest
+  - name: aws-ebs-csi-driver
+    version: latest
+    serviceAccountRoleARN: auto
+
+# CloudWatch logging
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+
+# IAM OIDC provider for service accounts
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: kyverno-reports-sa
+        namespace: kyverno
+      wellKnownPolicies:
+        autoScaler: true
